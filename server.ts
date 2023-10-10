@@ -23,10 +23,18 @@ io.on("connection", (socket: Socket) => {
     });
 
     // Listen for chatMessage
-    socket.on("chatMessage", (msg, receiver) => {
-        console.log(msg);
-        io.to(receiver).emit("message", formatMessage(msg.username, msg.text));
+    socket.on("chatMessage", (msg, sender, receiver) => {
+        console.log(msg,sender, receiver);
+        io.to(receiver).emit("message", formatMessage(sender, msg));
+        console.log('sender', sender);
+        socket.broadcast.to(sender).emit("message", formatMessage(sender, msg));
     });
+
+    // Runs when client disconnects
+    socket.on("disconnect", () => {
+        console.log("User has left the chat");
+    }
+    );
 });
 
 server.listen(PORT, () => console.log(`Server running on port ${PORT}`));
